@@ -1,5 +1,6 @@
 """Tarot Deck Generator - CrewAI crew definition."""
 
+import argparse
 import json  # required for run() serialization path: _extract_style_bible_data, _write_style_bible
 import os
 from pathlib import Path
@@ -18,8 +19,15 @@ load_dotenv()
 _SETTINGS_ENV = "TAROT_CONFIG_PATH"
 _CARDS_ENV = "TAROT_CARDS_PATH"
 STYLE_BIBLE_FILENAME = "style_bible.json"
+# Index of generate_style_bible_task in crew.tasks (sequential order); used to read from tasks_output.
+STYLE_BIBLE_TASK_INDEX = 0
 # Shown in task prompt when an optional CLI arg is omitted; task description instructs agent to infer.
 OMITTED_INPUT_PLACEHOLDER = "(not specified — infer from art style and mood)"
+
+
+def _optional_input_or_placeholder(value: str) -> str:
+    """Return value if non-empty, else OMITTED_INPUT_PLACEHOLDER (for CLI optional args)."""
+    return value if value else OMITTED_INPUT_PLACEHOLDER
 
 
 def _discover_project_root(start: Path) -> Path:
@@ -210,8 +218,6 @@ def run():
         - FileNotFoundError: TAROT_CONFIG_PATH or TAROT_CARDS_PATH point to
           missing paths, or config/settings.yaml / data/cards.json not found.
     """
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Autonomous AI Tarot Deck Generator",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -270,18 +276,14 @@ Examples:
     # "unrecognized arguments" errors; only our deck options are consumed.
     args, _ = parser.parse_known_args()
 
-    # Use placeholder for omitted optionals so the task prompt is unambiguous (no bare "Mood: ").
-    def _val(v: str) -> str:
-        return v if v else OMITTED_INPUT_PLACEHOLDER
-
     inputs = {
         "style": args.style,
-        "mood": _val(args.mood),
-        "palette": _val(args.palette),
-        "suit_wands": _val(args.suit_wands),
-        "suit_cups": _val(args.suit_cups),
-        "suit_swords": _val(args.suit_swords),
-        "suit_pentacles": _val(args.suit_pentacles),
+        "mood": _optional_input_or_placeholder(args.mood),
+        "palette": _optional_input_or_placeholder(args.palette),
+        "suit_wands": _optional_input_or_placeholder(args.suit_wands),
+        "suit_cups": _optional_input_or_placeholder(args.suit_cups),
+        "suit_swords": _optional_input_or_placeholder(args.suit_swords),
+        "suit_pentacles": _optional_input_or_placeholder(args.suit_pentacles),
     }
 
     print(f"Tarot Deck Generator - starting with style: '{args.style}'")
@@ -289,10 +291,11 @@ Examples:
     result = crew_instance.crew().kickoff(inputs=inputs)
 
     # In sequential mode kickoff() returns the last task's output; the Style Bible
-    # is produced by the first task (generate_style_bible_task). Use tasks_output[0].
+    # is produced by the first task (generate_style_bible_task). Use tasks_output[STYLE_BIBLE_TASK_INDEX].
+    tasks_output = getattr(result, "tasks_output", None)
     first_task_output = (
-        result.tasks_output[0]
-        if getattr(result, "tasks_output", None) and len(result.tasks_output) > 0
+        result.tasks_output[STYLE_BIBLE_TASK_INDEX]
+        if tasks_output and len(tasks_output) > STYLE_BIBLE_TASK_INDEX
         else result
     )
     output_dir = Path(crew_instance.settings["output_path"])

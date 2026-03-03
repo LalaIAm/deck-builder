@@ -10,6 +10,12 @@ import pytest
 from tarot_deck_generator.crew import OMITTED_INPUT_PLACEHOLDER, run
 
 
+def _kickoff_inputs(call_args):
+    """Get inputs dict from kickoff() call; works with keyword or positional args."""
+    kwargs = getattr(call_args, "kwargs", None) or (call_args[1] if len(call_args) > 1 else {})
+    return kwargs.get("inputs", {})
+
+
 def _minimal_style_bible_dict():
     """Minimal REQ-2–shaped dict for style_bible persistence tests."""
     return {
@@ -62,9 +68,8 @@ class TestRunCLIParsing:
                 run()
 
         mock_kickoff.assert_called_once()
-        call_kw = mock_kickoff.call_args.kwargs
-        assert "inputs" in call_kw
-        inputs = call_kw["inputs"]
+        inputs = _kickoff_inputs(mock_kickoff.call_args)
+        assert inputs
         assert inputs["style"] == "gothic"
         assert inputs["mood"] == "mysterious"
         assert inputs["palette"] == OMITTED_INPUT_PLACEHOLDER
@@ -90,7 +95,7 @@ class TestRunCLIParsing:
             with patch("tarot_deck_generator.crew.TarotDeckGeneratorCrew", return_value=mock_crew_instance):
                 run()
 
-        inputs = mock_kickoff.call_args.kwargs["inputs"]
+        inputs = _kickoff_inputs(mock_kickoff.call_args)
         assert inputs["style"] == "art nouveau"
         assert inputs["mood"] == "mystical"
 
