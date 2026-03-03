@@ -1,4 +1,4 @@
-"""Tarot Deck Generator — CrewAI crew definition."""
+"""Tarot Deck Generator - CrewAI crew definition."""
 
 import json
 from pathlib import Path
@@ -8,15 +8,9 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from dotenv import load_dotenv
 
-from tarot_deck_generator.models import (
-    CardConcept,
-    CardResult,
-    CardSpec,
-    EvaluationVerdict,
-    StyleBible,
-)
+from tarot_deck_generator.models import CardSpec
 
-# Load .env at import time — must happen before any OpenAI client is instantiated
+# Load .env at import time - must happen before any OpenAI client is instantiated
 load_dotenv()
 
 # Resolve paths relative to project root
@@ -93,7 +87,7 @@ class TarotDeckGeneratorCrew:
 
     @task
     def evaluate_image_task(self) -> Task:
-        return Task(config=self.tasks_config["evaluate_image_task"]) # type: ignore
+        return Task(config=self.tasks_config["evaluate_image_task"])
 
     @task
     def repair_prompt_task(self) -> Task:
@@ -115,8 +109,8 @@ class TarotDeckGeneratorCrew:
 
 
 def run():
-    """CLI entry point — invoked by `crewai run`."""
-    print("Tarot Deck Generator — initialising crew...")
+    """CLI entry point - invoked by `crewai run`."""
+    print("Tarot Deck Generator - initialising crew...")
     crew_instance = TarotDeckGeneratorCrew()
     print(f"Loaded {len(crew_instance.cards)} cards from spec.")
     print(f"Settings: {crew_instance.settings}")

@@ -39,11 +39,11 @@ Edit `config/settings.yaml` to control pipeline behaviour:
 
 | Key              | Default           | Description                                                                        |
 | ---------------- | ----------------- | ---------------------------------------------------------------------------------- |
-| `model`          | `gpt-4o`          | LLM used by text-based agents (concept, prompt, evaluator, repair, orchestrator)   |
+| `model`          | `gpt-4o`          | LLM used by text-based agents (concept, prompt, evaluator, repair, orchestrator) |
 | `image_model`    | `gpt-image-1`     | Model used by the image generation agent                                           |
 | `max_retries`    | `3`               | Maximum generation + evaluation attempts per card before accepting the best result |
 | `output_path`    | `output/`         | Directory where generated PNGs and the results manifest are written                |
-| `card_spec_path` | `data/cards.json` | Path to the bundled 78-card JSON spec (do not modify unless using a custom deck)   |
+| `card_spec_path` | `data/cards.json` | Path to the bundled 78-card JSON spec (do not modify unless using a custom deck) |
 
 ---
 
@@ -53,11 +53,11 @@ After a successful run, the `output/` directory will contain:
 
 ```text
 output/
-├── images/
-│   ├── major_00_the_fool.png
-│   ├── major_01_the_magician.png
-│   └── ... (78 PNGs total)
-└── manifest.json
+|-- images/
+|   |-- major_00_the_fool.png
+|   |-- major_01_the_magician.png
+|   `-- ... (78 PNGs total)
+`-- manifest.json
 ```
 
 `manifest.json` maps each `card_id` to its generation result:
@@ -80,20 +80,20 @@ output/
 
 ```text
 tarot_deck_generator/
-├── pyproject.toml          # uv project config + crewai run entry point
-├── .env.example            # Required environment variable template
-├── config/
-│   └── settings.yaml       # Pipeline configuration knobs
-├── data/
-│   └── cards.json          # Bundled 78-card tarot spec
-├── output/                 # Generated images + manifest (gitignored)
-└── src/
-    └── tarot_deck_generator/
-        ├── crew.py         # CrewAI crew class + run() entry point
-        ├── models.py       # Pydantic data contracts for inter-agent communication
-        └── config/
-            ├── agents.yaml # Agent role/goal/backstory definitions
-            └── tasks.yaml  # Task descriptions + agent assignments
+|-- pyproject.toml          # uv project config + crewai run entry point
+|-- .env.example            # Required environment variable template
+|-- config/
+|   `-- settings.yaml       # Pipeline configuration knobs
+|-- data/
+|   `-- cards.json          # Bundled 78-card tarot spec
+|-- output/                 # Generated images + manifest (gitignored)
+`-- src/
+    `-- tarot_deck_generator/
+        |-- crew.py         # CrewAI crew class + run() entry point
+        |-- models.py       # Pydantic data contracts for inter-agent communication
+        `-- config/
+            |-- agents.yaml # Agent role/goal/backstory definitions
+            `-- tasks.yaml  # Task descriptions + agent assignments
 ```
 
 ---
@@ -102,7 +102,7 @@ tarot_deck_generator/
 
 | Agent                | Role                                                             |
 | -------------------- | ---------------------------------------------------------------- |
-| `style_bible_agent`  | Generates the Deck Style Bible JSON (once per run)               |
+| `style_bible_agent`  | Generates the Deck Style Bible JSON (once per run)              |
 | `concept_agent`      | Generates per-card visual concept JSON                           |
 | `prompt_agent`       | Converts concept JSON to image generation prompt string          |
 | `image_agent`        | Calls OpenAI image API, returns PNG reference                    |

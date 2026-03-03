@@ -11,6 +11,7 @@ dependencies = [
 
 [project.scripts]
 tarot_deck_generator = "tarot_deck_generator.crew:run"
+run_crew = "tarot_deck_generator.crew:run"
 
 [build-system]
 requires = ["hatchling"]
