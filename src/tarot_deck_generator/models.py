@@ -15,12 +15,63 @@ class CardSpec(BaseModel):
     meaning_keywords: list[str]
 
 
-class StyleBible(BaseModel):
+# REQ-2 Style Bible schema: nested models for strict validation.
+
+
+class GlobalStyleRules(BaseModel):
+    """Six required keys per REQ-2 global_style_rules."""
+
     model_config = ConfigDict(extra="forbid")
 
-    global_style_rules: dict
-    suit_systems: dict
-    major_arcana_rules: dict
+    art_style: str
+    mood: str
+    lighting: str
+    composition: str
+    color_temperature: str
+    rendering_technique: str
+
+
+class SuitSystem(BaseModel):
+    """Per-suit visual system: palette, lighting, motif, energy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    palette: str
+    lighting: str
+    motif: str
+    energy: str
+
+
+class SuitSystems(BaseModel):
+    """Four suits required: wands, cups, swords, pentacles."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    wands: SuitSystem
+    cups: SuitSystem
+    swords: SuitSystem
+    pentacles: SuitSystem
+
+
+class MajorArcanaRules(BaseModel):
+    """Four keys; archetypal_realism must be true per REQ-2."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    figure_style: str
+    symbolism_approach: str
+    background_complexity: str
+    archetypal_realism: bool = True
+
+
+class StyleBible(BaseModel):
+    """Deck Style Bible per REQ-2: global rules, suit systems, major arcana, prompt prefix, avoid terms."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    global_style_rules: GlobalStyleRules
+    suit_systems: SuitSystems
+    major_arcana_rules: MajorArcanaRules
     prompt_prefix: str
     avoid_terms: list[str]
 

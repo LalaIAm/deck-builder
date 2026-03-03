@@ -1,6 +1,6 @@
 """Tarot Deck Generator - CrewAI crew definition."""
 
-import json
+import json  # required for run() serialization path: _extract_style_bible_data, _write_style_bible
 import os
 from pathlib import Path
 from typing import Any
@@ -10,13 +10,16 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from dotenv import load_dotenv
 
-from tarot_deck_generator.models import CardSpec
+from tarot_deck_generator.models import CardSpec, StyleBible
 
 # Load .env at import time - must happen before any OpenAI client is instantiated
 load_dotenv()
 
 _SETTINGS_ENV = "TAROT_CONFIG_PATH"
 _CARDS_ENV = "TAROT_CARDS_PATH"
+STYLE_BIBLE_FILENAME = "style_bible.json"
+# Shown in task prompt when an optional CLI arg is omitted; task description instructs agent to infer.
+OMITTED_INPUT_PLACEHOLDER = "(not specified — infer from art style and mood)"
 
 
 def _discover_project_root(start: Path) -> Path:
@@ -85,12 +88,10 @@ class TarotDeckGeneratorCrew:
 
     @agent
     def style_bible_agent(self) -> Agent:
-        from tarot_deck_generator.models import StyleBible
-
+        """Structured output is enforced at Task level (generate_style_bible_task.output_json)."""
         return Agent(
             config=self.agents_config["style_bible_agent"],
             llm=self.settings["model"],
-            output_json=StyleBible,
             verbose=True,
         )
 
@@ -120,8 +121,7 @@ class TarotDeckGeneratorCrew:
 
     @task
     def generate_style_bible_task(self) -> Task:
-        from tarot_deck_generator.models import StyleBible
-
+        """Task-level output_json (CrewAI convention) drives StyleBible; Agent does not use output_json."""
         return Task(
             config=self.tasks_config["generate_style_bible_task"],
             output_json=StyleBible,
@@ -162,8 +162,54 @@ class TarotDeckGeneratorCrew:
         )
 
 
+def _extract_style_bible_data(result: Any) -> dict[str, Any]:
+    """Extract style bible dict from crew kickoff result (json_dict, pydantic, or JSON fallback)."""
+    if hasattr(result, "json_dict") and result.json_dict:
+        return result.json_dict
+    if hasattr(result, "pydantic") and result.pydantic:
+        return result.pydantic.model_dump()
+    try:
+        return json.loads(str(result))
+    except json.JSONDecodeError as e:
+        raise ValueError(
+            "Style Bible output was not valid JSON; cannot persist to file. "
+            "Ensure the style_bible_agent returns strict JSON only."
+        ) from e
+
+
+def _write_style_bible(style_bible_data: dict[str, Any], output_dir: Path) -> Path:
+    """Create output_dir if needed and write style_bible.json; return path to written file."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / STYLE_BIBLE_FILENAME
+    with open(path, "w", encoding="utf-8") as file:
+        file.write(json.dumps(style_bible_data, indent=2))
+    return path
+
+
 def run():
-    """CLI entry point - invoked by `crewai run`."""
+    """CLI entry point - invoked by `crewai run`.
+
+    Inputs:
+        Taken from sys.argv (or crewai-injected args). Required: --style.
+        Optional: --mood, --palette, --suit-wands, --suit-cups, --suit-swords,
+        --suit-pentacles (underscore variants accepted). All are passed to
+        crew.kickoff(inputs=...) as a dict with keys style, mood, palette,
+        suit_wands, suit_cups, suit_swords, suit_pentacles (omitted options
+        default to empty string).
+
+    Outputs:
+        Returns the crew kickoff result. Side effect: writes the Style Bible
+        to {output_path}/style_bible.json (see config/settings.yaml).
+        Creates the output directory if it does not exist.
+
+    Failure modes:
+        - SystemExit(2): --style not provided (argparse usage error).
+        - ValueError: crew result was not valid JSON when using the fallback
+          parse path (e.g. agent returned markdown instead of strict JSON).
+        - FileNotFoundError: TAROT_CONFIG_PATH or TAROT_CARDS_PATH point to
+          missing paths, or config/settings.yaml / data/cards.json not found.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -173,7 +219,7 @@ def run():
 Examples:
   crewai run --style "dark gothic watercolor"
   crewai run --style "art nouveau" --mood "mystical" --palette "gold, ivory, deep teal"
-  crewai run --style "ukiyo-e woodblock" --suit_wands "fire and dragons" --suit_cups "water and koi"
+  crewai run --style "ukiyo-e woodblock" --suit-wands "fire and dragons" --suit-cups "water and koi"
         """,
     )
     parser.add_argument(
@@ -192,56 +238,59 @@ Examples:
         help='Color palette hints (e.g. "deep purples, blacks, silver")',
     )
     parser.add_argument(
+        "--suit-wands",
         "--suit_wands",
+        dest="suit_wands",
         default="",
         help="Wands suit visual association override",
     )
     parser.add_argument(
+        "--suit-cups",
         "--suit_cups",
+        dest="suit_cups",
         default="",
         help="Cups suit visual association override",
     )
     parser.add_argument(
+        "--suit-swords",
         "--suit_swords",
+        dest="suit_swords",
         default="",
         help="Swords suit visual association override",
     )
     parser.add_argument(
+        "--suit-pentacles",
         "--suit_pentacles",
+        dest="suit_pentacles",
         default="",
         help="Pentacles suit visual association override",
     )
 
-    args = parser.parse_args()
+    # parse_known_args() so CrewAI-injected CLI args (e.g. subcommands, flags) do not cause
+    # "unrecognized arguments" errors; only our deck options are consumed.
+    args, _ = parser.parse_known_args()
+
+    # Use placeholder for omitted optionals so the task prompt is unambiguous (no bare "Mood: ").
+    def _val(v: str) -> str:
+        return v if v else OMITTED_INPUT_PLACEHOLDER
 
     inputs = {
         "style": args.style,
-        "mood": args.mood,
-        "palette": args.palette,
-        "suit_wands": args.suit_wands,
-        "suit_cups": args.suit_cups,
-        "suit_swords": args.suit_swords,
-        "suit_pentacles": args.suit_pentacles,
+        "mood": _val(args.mood),
+        "palette": _val(args.palette),
+        "suit_wands": _val(args.suit_wands),
+        "suit_cups": _val(args.suit_cups),
+        "suit_swords": _val(args.suit_swords),
+        "suit_pentacles": _val(args.suit_pentacles),
     }
 
     print(f"Tarot Deck Generator - starting with style: '{args.style}'")
     crew_instance = TarotDeckGeneratorCrew()
     result = crew_instance.crew().kickoff(inputs=inputs)
 
-    # Persist the Style Bible to disk
     output_dir = Path(crew_instance.settings["output_path"])
-    output_dir.mkdir(parents=True, exist_ok=True)
-    style_bible_path = output_dir / "style_bible.json"
-
-    if hasattr(result, "json_dict") and result.json_dict:
-        style_bible_data = result.json_dict
-    elif hasattr(result, "pydantic") and result.pydantic:
-        style_bible_data = result.pydantic.model_dump()
-    else:
-        style_bible_data = json.loads(str(result))
-
-    with open(style_bible_path, "w", encoding="utf-8") as file:
-        file.write(json.dumps(style_bible_data, indent=2))
+    style_bible_data = _extract_style_bible_data(result)
+    style_bible_path = _write_style_bible(style_bible_data, output_dir)
 
     print(f"Style Bible written to {style_bible_path}")
     print("Generation complete.")
