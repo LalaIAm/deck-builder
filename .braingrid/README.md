@@ -463,7 +463,7 @@ Provide context to guide implementation:
 
 - **Issues**: [GitHub Issues](https://github.com/BrainGridAI/braingrid/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/BrainGridAI/braingrid/discussions)
-- **Email**: support@braingrid.ai
+- **Email**: <support@braingrid.ai>
 
 ---
 

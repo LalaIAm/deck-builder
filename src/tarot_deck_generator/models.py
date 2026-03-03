@@ -2,7 +2,7 @@
 
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 
 class CardSpec(BaseModel):
@@ -44,12 +44,18 @@ class CardConcept(BaseModel):
 
 
 class EvaluationVerdict(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     card_id: str
-    passed: bool
+    pass_: bool = Field(
+        validation_alias=AliasChoices("pass", "passed"),
+        serialization_alias="pass",
+    )
     subscores: dict[str, float]
+    rule_checks: dict[str, bool]
+    reasons: list[str]
     prompt_patch: str
+    failure_mode: str
     attempt_number: int
 
 

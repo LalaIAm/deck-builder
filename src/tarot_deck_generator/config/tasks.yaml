@@ -20,7 +20,7 @@ generate_image_task:
 
 evaluate_image_task:
   description: Evaluate the generated tarot card image against the card concept and Style Bible. Score suit compliance, global style adherence, meaning alignment, and image quality. Detect artifacts, watermarks, extra limbs, and palette drift. Output strict JSON only.
-  expected_output: A valid JSON object conforming to the EvaluationVerdict schema with card_id, passed boolean, subscores dict, prompt_patch string, and attempt_number.
+  expected_output: A valid JSON object conforming to the EvaluationVerdict schema with card_id, pass boolean, subscores dict, rule_checks dict, reasons list, prompt_patch string, failure_mode string, and attempt_number.
   agent: evaluator_agent
 
 repair_prompt_task:

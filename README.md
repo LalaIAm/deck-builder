@@ -35,7 +35,7 @@ crewai run
 
 ## Configuration
 
-Edit `config/settings.yaml` to control pipeline behaviour:
+Edit `config/settings.yaml` to control pipeline behavior:
 
 | Key              | Default           | Description                                                                        |
 | ---------------- | ----------------- | ---------------------------------------------------------------------------------- |
@@ -44,6 +44,10 @@ Edit `config/settings.yaml` to control pipeline behaviour:
 | `max_retries`    | `3`               | Maximum generation + evaluation attempts per card before accepting the best result |
 | `output_path`    | `output/`         | Directory where generated PNGs and the results manifest are written                |
 | `card_spec_path` | `data/cards.json` | Path to the bundled 78-card JSON spec (do not modify unless using a custom deck) |
+
+Environment overrides for path resolution:
+- `TAROT_CONFIG_PATH`: absolute/relative path to `settings.yaml`
+- `TAROT_CARDS_PATH`: absolute/relative path to `cards.json`
 
 ---
 
@@ -69,7 +73,14 @@ output/
     "initial_prompt": "...",
     "best_attempt_path": "output/images/major_00_the_fool.png",
     "total_attempts": 2,
-    "final_verdict": { "passed": true, "subscores": { "...": 0.0 } }
+    "final_verdict": {
+      "pass": true,
+      "subscores": { "...": 0.0 },
+      "rule_checks": { "no_text_artifacts": true },
+      "reasons": [],
+      "prompt_patch": "",
+      "failure_mode": "none"
+    }
   }
 }
 ```

@@ -1,5 +1,10 @@
+# LLM for text agents (concept, prompt, evaluator, repair, orchestrator).
 model: gpt-4o
+# Image generation model for card artwork attempts.
 image_model: gpt-image-1
+# Max generation/evaluation retries per card before keeping best attempt.
 max_retries: 3
+# Directory where generated assets and manifest outputs are written.
 output_path: output/
+# Path to bundled tarot card specification JSON.
 card_spec_path: data/cards.json
