@@ -170,6 +170,37 @@ class TestRunStyleBiblePersistence:
                 with pytest.raises(ValueError, match="not valid JSON"):
                     run()
 
+    def test_persists_from_first_task_output_when_tasks_output_present(self, tmp_path):
+        """When result has tasks_output (multi-task crew), use first task's output for style_bible.json."""
+        style_bible_data = _minimal_style_bible_dict()
+        style_bible_data["prompt_prefix"] = "from first task"
+        first_task = MagicMock()
+        first_task.json_dict = style_bible_data
+        first_task.pydantic = None
+        # Last task (e.g. orchestrate_deck_task) would have different output
+        mock_result = MagicMock()
+        mock_result.tasks_output = [first_task]
+        mock_result.json_dict = {"card_results": "manifest"}  # last task output
+        mock_result.pydantic = None
+
+        mock_kickoff = MagicMock(return_value=mock_result)
+        mock_crew = MagicMock()
+        mock_crew.kickoff = mock_kickoff
+        mock_crew_instance = MagicMock()
+        mock_crew_instance.settings = {"output_path": str(tmp_path)}
+        mock_crew_instance.crew.return_value = mock_crew
+
+        with patch.object(sys, "argv", ["crewai", "run", "--style", "x"]):
+            with patch("tarot_deck_generator.crew.TarotDeckGeneratorCrew", return_value=mock_crew_instance):
+                run()
+
+        out_file = tmp_path / "style_bible.json"
+        assert out_file.exists()
+        with open(out_file, encoding="utf-8") as f:
+            written = json.load(f)
+        assert written["prompt_prefix"] == "from first task"
+        assert "card_results" not in written
+
     def test_output_dir_created_if_missing(self, tmp_path):
         """output_path directory is created if it does not exist."""
         output_subdir = tmp_path / "nested" / "output"

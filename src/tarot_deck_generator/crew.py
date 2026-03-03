@@ -288,8 +288,15 @@ Examples:
     crew_instance = TarotDeckGeneratorCrew()
     result = crew_instance.crew().kickoff(inputs=inputs)
 
+    # In sequential mode kickoff() returns the last task's output; the Style Bible
+    # is produced by the first task (generate_style_bible_task). Use tasks_output[0].
+    first_task_output = (
+        result.tasks_output[0]
+        if getattr(result, "tasks_output", None) and len(result.tasks_output) > 0
+        else result
+    )
     output_dir = Path(crew_instance.settings["output_path"])
-    style_bible_data = _extract_style_bible_data(result)
+    style_bible_data = _extract_style_bible_data(first_task_output)
     style_bible_path = _write_style_bible(style_bible_data, output_dir)
 
     print(f"Style Bible written to {style_bible_path}")
