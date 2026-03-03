@@ -1,0 +1,708 @@
+[
+  {
+    "card_id": "major_00",
+    "card_name": "The Fool",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "beginnings",
+      "innocence",
+      "spontaneity",
+      "free spirit"
+    ]
+  },
+  {
+    "card_id": "major_01",
+    "card_name": "The Magician",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "willpower",
+      "skill",
+      "resourcefulness",
+      "manifestation"
+    ]
+  },
+  {
+    "card_id": "major_02",
+    "card_name": "The High Priestess",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "intuition",
+      "mystery",
+      "inner knowledge",
+      "subconscious"
+    ]
+  },
+  {
+    "card_id": "major_03",
+    "card_name": "The Empress",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["fertility", "abundance", "nature", "nurturing"]
+  },
+  {
+    "card_id": "major_04",
+    "card_name": "The Emperor",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["authority", "structure", "stability", "fatherhood"]
+  },
+  {
+    "card_id": "major_05",
+    "card_name": "The Hierophant",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["tradition", "conformity", "morality", "ethics"]
+  },
+  {
+    "card_id": "major_06",
+    "card_name": "The Lovers",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["love", "harmony", "relationships", "choices"]
+  },
+  {
+    "card_id": "major_07",
+    "card_name": "The Chariot",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["control", "willpower", "victory", "determination"]
+  },
+  {
+    "card_id": "major_08",
+    "card_name": "Strength",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["courage", "patience", "inner strength", "compassion"]
+  },
+  {
+    "card_id": "major_09",
+    "card_name": "The Hermit",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "solitude",
+      "introspection",
+      "guidance",
+      "inner wisdom"
+    ]
+  },
+  {
+    "card_id": "major_10",
+    "card_name": "Wheel of Fortune",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["luck", "cycles", "fate", "turning point"]
+  },
+  {
+    "card_id": "major_11",
+    "card_name": "Justice",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["fairness", "truth", "cause and effect", "law"]
+  },
+  {
+    "card_id": "major_12",
+    "card_name": "The Hanged Man",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "surrender",
+      "new perspective",
+      "suspension",
+      "sacrifice"
+    ]
+  },
+  {
+    "card_id": "major_13",
+    "card_name": "Death",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["endings", "transformation", "transition", "change"]
+  },
+  {
+    "card_id": "major_14",
+    "card_name": "Temperance",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["balance", "moderation", "patience", "purpose"]
+  },
+  {
+    "card_id": "major_15",
+    "card_name": "The Devil",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["bondage", "materialism", "shadow self", "addiction"]
+  },
+  {
+    "card_id": "major_16",
+    "card_name": "The Tower",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["sudden change", "upheaval", "chaos", "revelation"]
+  },
+  {
+    "card_id": "major_17",
+    "card_name": "The Star",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["hope", "faith", "renewal", "serenity"]
+  },
+  {
+    "card_id": "major_18",
+    "card_name": "The Moon",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["illusion", "fear", "subconscious", "confusion"]
+  },
+  {
+    "card_id": "major_19",
+    "card_name": "The Sun",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["joy", "success", "vitality", "optimism"]
+  },
+  {
+    "card_id": "major_20",
+    "card_name": "Judgement",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": ["reflection", "reckoning", "awakening", "absolution"]
+  },
+  {
+    "card_id": "major_21",
+    "card_name": "The World",
+    "arcana": "major",
+    "suit": null,
+    "meaning_keywords": [
+      "completion",
+      "integration",
+      "accomplishment",
+      "wholeness"
+    ]
+  },
+  {
+    "card_id": "wands_01",
+    "card_name": "Ace of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["inspiration", "new beginnings", "growth", "potential"]
+  },
+  {
+    "card_id": "wands_02",
+    "card_name": "Two of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["planning", "future", "progress", "decisions"]
+  },
+  {
+    "card_id": "wands_03",
+    "card_name": "Three of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["expansion", "foresight", "overseas opportunities"]
+  },
+  {
+    "card_id": "wands_04",
+    "card_name": "Four of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["celebration", "harmony", "homecoming", "community"]
+  },
+  {
+    "card_id": "wands_05",
+    "card_name": "Five of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["conflict", "competition", "tension", "diversity"]
+  },
+  {
+    "card_id": "wands_06",
+    "card_name": "Six of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["victory", "success", "public recognition", "progress"]
+  },
+  {
+    "card_id": "wands_07",
+    "card_name": "Seven of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["challenge", "competition", "perseverance", "defense"]
+  },
+  {
+    "card_id": "wands_08",
+    "card_name": "Eight of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["speed", "action", "air travel", "movement"]
+  },
+  {
+    "card_id": "wands_09",
+    "card_name": "Nine of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": [
+      "resilience",
+      "courage",
+      "persistence",
+      "test of faith"
+    ]
+  },
+  {
+    "card_id": "wands_10",
+    "card_name": "Ten of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": [
+      "burden",
+      "extra responsibility",
+      "hard work",
+      "completion"
+    ]
+  },
+  {
+    "card_id": "wands_11",
+    "card_name": "Page of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["exploration", "excitement", "freedom", "adventure"]
+  },
+  {
+    "card_id": "wands_12",
+    "card_name": "Knight of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["energy", "passion", "adventure", "impulsiveness"]
+  },
+  {
+    "card_id": "wands_13",
+    "card_name": "Queen of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": [
+      "courage",
+      "confidence",
+      "independence",
+      "social butterfly"
+    ]
+  },
+  {
+    "card_id": "wands_14",
+    "card_name": "King of Wands",
+    "arcana": "minor",
+    "suit": "wands",
+    "meaning_keywords": ["natural leader", "vision", "entrepreneur", "honour"]
+  },
+  {
+    "card_id": "cups_01",
+    "card_name": "Ace of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "love",
+      "new relationships",
+      "compassion",
+      "creativity"
+    ]
+  },
+  {
+    "card_id": "cups_02",
+    "card_name": "Two of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["unified love", "partnership", "mutual attraction"]
+  },
+  {
+    "card_id": "cups_03",
+    "card_name": "Three of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["celebration", "friendship", "creativity", "community"]
+  },
+  {
+    "card_id": "cups_04",
+    "card_name": "Four of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "meditation",
+      "contemplation",
+      "apathy",
+      "reevaluation"
+    ]
+  },
+  {
+    "card_id": "cups_05",
+    "card_name": "Five of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["regret", "failure", "disappointment", "pessimism"]
+  },
+  {
+    "card_id": "cups_06",
+    "card_name": "Six of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "revisiting the past",
+      "childhood memories",
+      "innocence"
+    ]
+  },
+  {
+    "card_id": "cups_07",
+    "card_name": "Seven of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["fantasy", "illusion", "wishful thinking", "choices"]
+  },
+  {
+    "card_id": "cups_08",
+    "card_name": "Eight of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "disappointment",
+      "abandonment",
+      "withdrawal",
+      "escapism"
+    ]
+  },
+  {
+    "card_id": "cups_09",
+    "card_name": "Nine of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "contentment",
+      "satisfaction",
+      "gratitude",
+      "wish fulfilled"
+    ]
+  },
+  {
+    "card_id": "cups_10",
+    "card_name": "Ten of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "divine love",
+      "blissful relationships",
+      "harmony",
+      "alignment"
+    ]
+  },
+  {
+    "card_id": "cups_11",
+    "card_name": "Page of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "creative opportunities",
+      "intuitive messages",
+      "curiosity"
+    ]
+  },
+  {
+    "card_id": "cups_12",
+    "card_name": "Knight of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["creativity", "romance", "charm", "imagination"]
+  },
+  {
+    "card_id": "cups_13",
+    "card_name": "Queen of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": [
+      "compassionate",
+      "caring",
+      "emotionally stable",
+      "intuitive"
+    ]
+  },
+  {
+    "card_id": "cups_14",
+    "card_name": "King of Cups",
+    "arcana": "minor",
+    "suit": "cups",
+    "meaning_keywords": ["emotionally balanced", "compassionate", "diplomatic"]
+  },
+  {
+    "card_id": "swords_01",
+    "card_name": "Ace of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["clarity", "truth", "decision", "breakthrough"]
+  },
+  {
+    "card_id": "swords_02",
+    "card_name": "Two of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["difficult decisions", "indecision", "stalemate"]
+  },
+  {
+    "card_id": "swords_03",
+    "card_name": "Three of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["heartbreak", "emotional pain", "sorrow", "grief"]
+  },
+  {
+    "card_id": "swords_04",
+    "card_name": "Four of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["rest", "relaxation", "meditation", "contemplation"]
+  },
+  {
+    "card_id": "swords_05",
+    "card_name": "Five of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["conflict", "disagreements", "competition", "defeat"]
+  },
+  {
+    "card_id": "swords_06",
+    "card_name": "Six of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["transition", "change", "rite of passage", "moving on"]
+  },
+  {
+    "card_id": "swords_07",
+    "card_name": "Seven of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["betrayal", "deception", "getting away with something"]
+  },
+  {
+    "card_id": "swords_08",
+    "card_name": "Eight of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": [
+      "negative thoughts",
+      "self-imposed restriction",
+      "imprisonment"
+    ]
+  },
+  {
+    "card_id": "swords_09",
+    "card_name": "Nine of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["anxiety", "worry", "fear", "depression", "nightmares"]
+  },
+  {
+    "card_id": "swords_10",
+    "card_name": "Ten of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": ["painful endings", "deep wounds", "betrayal", "loss"]
+  },
+  {
+    "card_id": "swords_11",
+    "card_name": "Page of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": [
+      "new ideas",
+      "curiosity",
+      "thirst for knowledge",
+      "new ways of communicating"
+    ]
+  },
+  {
+    "card_id": "swords_12",
+    "card_name": "Knight of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": [
+      "ambitious",
+      "action-oriented",
+      "driven to succeed",
+      "fast-thinking"
+    ]
+  },
+  {
+    "card_id": "swords_13",
+    "card_name": "Queen of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": [
+      "independent",
+      "unbiased judgement",
+      "clear boundaries",
+      "direct communication"
+    ]
+  },
+  {
+    "card_id": "swords_14",
+    "card_name": "King of Swords",
+    "arcana": "minor",
+    "suit": "swords",
+    "meaning_keywords": [
+      "mental clarity",
+      "intellectual power",
+      "authority",
+      "truth"
+    ]
+  },
+  {
+    "card_id": "pentacles_01",
+    "card_name": "Ace of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "new financial opportunity",
+      "manifestation",
+      "abundance"
+    ]
+  },
+  {
+    "card_id": "pentacles_02",
+    "card_name": "Two of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "multiple priorities",
+      "time management",
+      "prioritisation"
+    ]
+  },
+  {
+    "card_id": "pentacles_03",
+    "card_name": "Three of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "teamwork",
+      "collaboration",
+      "learning",
+      "implementation"
+    ]
+  },
+  {
+    "card_id": "pentacles_04",
+    "card_name": "Four of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": ["saving money", "security", "conservatism", "scarcity"]
+  },
+  {
+    "card_id": "pentacles_05",
+    "card_name": "Five of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "financial loss",
+      "poverty",
+      "lack mindset",
+      "isolation"
+    ]
+  },
+  {
+    "card_id": "pentacles_06",
+    "card_name": "Six of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": ["giving", "receiving", "sharing wealth", "generosity"]
+  },
+  {
+    "card_id": "pentacles_07",
+    "card_name": "Seven of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "long-term view",
+      "sustainable results",
+      "perseverance"
+    ]
+  },
+  {
+    "card_id": "pentacles_08",
+    "card_name": "Eight of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "apprenticeship",
+      "repetitive tasks",
+      "mastery",
+      "skill development"
+    ]
+  },
+  {
+    "card_id": "pentacles_09",
+    "card_name": "Nine of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "abundance",
+      "luxury",
+      "self-sufficiency",
+      "financial independence"
+    ]
+  },
+  {
+    "card_id": "pentacles_10",
+    "card_name": "Ten of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "wealth",
+      "financial security",
+      "family",
+      "long-term success"
+    ]
+  },
+  {
+    "card_id": "pentacles_11",
+    "card_name": "Page of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "manifestation",
+      "financial opportunity",
+      "skill development"
+    ]
+  },
+  {
+    "card_id": "pentacles_12",
+    "card_name": "Knight of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": ["hard work", "productivity", "routine", "conservatism"]
+  },
+  {
+    "card_id": "pentacles_13",
+    "card_name": "Queen of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "practical",
+      "homely",
+      "motherly",
+      "down-to-earth",
+      "security"
+    ]
+  },
+  {
+    "card_id": "pentacles_14",
+    "card_name": "King of Pentacles",
+    "arcana": "minor",
+    "suit": "pentacles",
+    "meaning_keywords": [
+      "wealth",
+      "business",
+      "leadership",
+      "security",
+      "discipline"
+    ]
+  }
+]

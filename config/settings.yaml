@@ -1,0 +1,5 @@
+model: gpt-4o
+image_model: gpt-image-1
+max_retries: 3
+output_path: output/
+card_spec_path: data/cards.json
