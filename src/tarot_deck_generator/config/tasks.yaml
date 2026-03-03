@@ -1,34 +1,109 @@
 generate_style_bible_task:
-  description: Generate the Deck Style Bible JSON from the provided creative direction. Output strict JSON only — no markdown, no commentary.
-  expected_output: A valid JSON object conforming to the StyleBible schema with global_style_rules, suit_systems, major_arcana_rules, prompt_prefix, and avoid_terms fields.
+  description: >
+    Generate a complete Deck Style Bible JSON for a tarot deck with the
+    following creative direction. Any field that reads "(not specified — infer
+    from art style and mood)" was not provided by the user; infer it from the
+    art style and mood.
+
+    Art Style: {style} Mood: {mood} Color Palette Hints: {palette} Wands Suit
+    Association: {suit_wands} Cups Suit Association: {suit_cups} Swords Suit
+    Association: {suit_swords} Pentacles Suit Association: {suit_pentacles}
+
+    Produce a single JSON object with no markdown, no commentary, and no text
+    outside the JSON. The JSON must conform to this exact structure: -
+    global_style_rules: object with keys art_style, mood, lighting, composition,
+      color_temperature, rendering_technique — all derived from the creative
+    direction above
+    - suit_systems: object with four suit keys (wands, cups, swords, pentacles),
+    each containing
+      palette, lighting, motif, and energy — use the suit association overrides
+    if provided,
+      otherwise infer from the art style and mood
+    - major_arcana_rules: object with figure_style, symbolism_approach,
+    background_complexity,
+      and archetypal_realism (always set to true)
+    - prompt_prefix: a concise string that will be prepended to every image
+    generation prompt
+      in the deck, capturing the core visual style
+    - avoid_terms: array of strings — MUST unconditionally include all of the
+    following:
+      "text", "words", "letters", "watermark", "logo", "extra limbs", "extra
+    fingers",
+      "deformed hands", "blurry", "low quality" — you may append additional
+    terms appropriate
+      to the style/mood but must never omit these ten
+
+  expected_output: >
+    A single valid JSON object conforming to the StyleBible schema. No markdown
+    fences, no explanatory text, no keys outside the schema. The object must
+    contain: global_style_rules (6 keys), suit_systems (4 suits × 4 keys each),
+    major_arcana_rules (4 keys with archetypal_realism: true), prompt_prefix
+    (non-empty string), and avoid_terms (array containing at minimum the 10
+    mandatory guardrail terms).
+
   agent: style_bible_agent
 
 generate_concept_task:
-  description: Generate a structured visual concept for the specified tarot card, respecting the Style Bible and limiting symbolic_elements to a maximum of three. Output strict JSON only.
-  expected_output: A valid JSON object conforming to the CardConcept schema with card_id, symbolic_elements (max 3), composition_notes, and prompt_string fields.
+  description:
+    Generate a structured visual concept for the specified tarot card,
+    respecting the Style Bible and limiting symbolic_elements to a maximum of
+    three. Output strict JSON only.
+  expected_output:
+    A valid JSON object conforming to the CardConcept schema with card_id,
+    symbolic_elements (max 3), composition_notes, and prompt_string fields.
   agent: concept_agent
 
 build_prompt_task:
-  description: Convert the card concept JSON into a single production-ready image generation prompt string. Must start with global_prefix, include suit or Major Arcana prefix, and end with global_avoid terms. Output the prompt string only — no JSON, no markdown.
-  expected_output: A single continuous prompt string with no markdown formatting, no JSON, and no bullet points.
+  description:
+    Convert the card concept JSON into a single production-ready image
+    generation prompt string. Must start with global_prefix, include suit or
+    Major Arcana prefix, and end with global_avoid terms. Output the prompt
+    string only — no JSON, no markdown.
+  expected_output:
+    A single continuous prompt string with no markdown formatting, no JSON, and
+    no bullet points.
   agent: prompt_agent
 
 generate_image_task:
-  description: Generate exactly one tarot card image using the provided prompt string. Use the configured image model and 1024x1536 PNG dimensions. Return the image reference only.
-  expected_output: A single image reference (URL or file path) with no additional commentary.
+  description:
+    Generate exactly one tarot card image using the provided prompt string. Use
+    the configured image model and 1024x1536 PNG dimensions. Return the image
+    reference only.
+  expected_output:
+    A single image reference (URL or file path) with no additional commentary.
   agent: image_agent
 
 evaluate_image_task:
-  description: Evaluate the generated tarot card image against the card concept and Style Bible. Score suit compliance, global style adherence, meaning alignment, and image quality. Detect artifacts, watermarks, extra limbs, and palette drift. Output strict JSON only.
-  expected_output: A valid JSON object conforming to the EvaluationVerdict schema with card_id, pass boolean, subscores dict, rule_checks dict, reasons list, prompt_patch string, failure_mode string, and attempt_number.
+  description:
+    Evaluate the generated tarot card image against the card concept and Style
+    Bible. Score suit compliance, global style adherence, meaning alignment, and
+    image quality. Detect artifacts, watermarks, extra limbs, and palette drift.
+    Output strict JSON only.
+  expected_output:
+    A valid JSON object conforming to the EvaluationVerdict schema with card_id,
+    pass boolean, subscores dict, rule_checks dict, reasons list, prompt_patch
+    string, failure_mode string, and attempt_number.
   agent: evaluator_agent
 
 repair_prompt_task:
-  description: Revise the failing image generation prompt based on the evaluation verdict. Apply surgical edits on attempt 1, reduce background complexity on attempt 2, and use safe mode (single subject, minimal background, 1 symbol) on attempt 3 and beyond. Output the revised prompt string only.
-  expected_output: A single revised prompt string with no markdown, no JSON, and no commentary.
+  description:
+    Revise the failing image generation prompt based on the evaluation verdict.
+    Apply surgical edits on attempt 1, reduce background complexity on attempt
+    2, and use safe mode (single subject, minimal background, 1 symbol) on
+    attempt 3 and beyond. Output the revised prompt string only.
+  expected_output:
+    A single revised prompt string with no markdown, no JSON, and no commentary.
   agent: repair_agent
 
 orchestrate_deck_task:
-  description: Orchestrate the sequential generation of all 78 tarot cards through the full pipeline. Generate the Style Bible once, then process each card through concept generation, prompt construction, image generation, evaluation, and repair as needed. Enforce max_retries per card and preserve the best attempt. Output the results manifest JSON.
-  expected_output: A valid JSON object mapping each card_id to a CardResult entry containing concept, initial_prompt, best_attempt_path, total_attempts, and final_verdict.
+  description:
+    Orchestrate the sequential generation of all 78 tarot cards through the full
+    pipeline. Generate the Style Bible once, then process each card through
+    concept generation, prompt construction, image generation, evaluation, and
+    repair as needed. Enforce max_retries per card and preserve the best
+    attempt. Output the results manifest JSON.
+  expected_output:
+    A valid JSON object mapping each card_id to a CardResult entry containing
+    concept, initial_prompt, best_attempt_path, total_attempts, and
+    final_verdict.
   agent: orchestrator_agent

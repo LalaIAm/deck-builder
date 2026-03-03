@@ -6,3 +6,5 @@ __pycache__/
 .DS_Store
 # BrainGrid temp files
 .braingrid/temp/
+# Local/dev output (do not commit)
+tmp_out/
