@@ -85,7 +85,14 @@ class TarotDeckGeneratorCrew:
 
     @agent
     def style_bible_agent(self) -> Agent:
-        return Agent(config=self.agents_config["style_bible_agent"], verbose=True)
+        from tarot_deck_generator.models import StyleBible
+
+        return Agent(
+            config=self.agents_config["style_bible_agent"],
+            llm=self.settings["model"],
+            output_json=StyleBible,
+            verbose=True,
+        )
 
     @agent
     def concept_agent(self) -> Agent:
@@ -113,7 +120,12 @@ class TarotDeckGeneratorCrew:
 
     @task
     def generate_style_bible_task(self) -> Task:
-        return Task(config=self.tasks_config["generate_style_bible_task"])
+        from tarot_deck_generator.models import StyleBible
+
+        return Task(
+            config=self.tasks_config["generate_style_bible_task"],
+            output_json=StyleBible,
+        )
 
     @task
     def generate_concept_task(self) -> Task:
@@ -152,13 +164,85 @@ class TarotDeckGeneratorCrew:
 
 def run():
     """CLI entry point - invoked by `crewai run`."""
-    print("Tarot Deck Generator - initialising crew...")
-    crew_instance = TarotDeckGeneratorCrew()
-    print(f"Loaded {len(crew_instance.cards)} cards from spec.")
-    print(f"Settings: {crew_instance.settings}")
-    print(
-        "Crew initialised successfully. Full pipeline implementation "
-        "in REQ-2 through REQ-7."
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Autonomous AI Tarot Deck Generator",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  crewai run --style "dark gothic watercolor"
+  crewai run --style "art nouveau" --mood "mystical" --palette "gold, ivory, deep teal"
+  crewai run --style "ukiyo-e woodblock" --suit_wands "fire and dragons" --suit_cups "water and koi"
+        """,
     )
-    # Stub: full kickoff deferred to REQ-7
-    # crew_instance.crew().kickoff()
+    parser.add_argument(
+        "--style",
+        required=True,
+        help='Art style descriptor (e.g. "dark gothic watercolor")',
+    )
+    parser.add_argument(
+        "--mood",
+        default="",
+        help='Emotional tone (e.g. "mysterious, introspective")',
+    )
+    parser.add_argument(
+        "--palette",
+        default="",
+        help='Color palette hints (e.g. "deep purples, blacks, silver")',
+    )
+    parser.add_argument(
+        "--suit_wands",
+        default="",
+        help="Wands suit visual association override",
+    )
+    parser.add_argument(
+        "--suit_cups",
+        default="",
+        help="Cups suit visual association override",
+    )
+    parser.add_argument(
+        "--suit_swords",
+        default="",
+        help="Swords suit visual association override",
+    )
+    parser.add_argument(
+        "--suit_pentacles",
+        default="",
+        help="Pentacles suit visual association override",
+    )
+
+    args = parser.parse_args()
+
+    inputs = {
+        "style": args.style,
+        "mood": args.mood,
+        "palette": args.palette,
+        "suit_wands": args.suit_wands,
+        "suit_cups": args.suit_cups,
+        "suit_swords": args.suit_swords,
+        "suit_pentacles": args.suit_pentacles,
+    }
+
+    print(f"Tarot Deck Generator - starting with style: '{args.style}'")
+    crew_instance = TarotDeckGeneratorCrew()
+    result = crew_instance.crew().kickoff(inputs=inputs)
+
+    # Persist the Style Bible to disk
+    output_dir = Path(crew_instance.settings["output_path"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    style_bible_path = output_dir / "style_bible.json"
+
+    if hasattr(result, "json_dict") and result.json_dict:
+        style_bible_data = result.json_dict
+    elif hasattr(result, "pydantic") and result.pydantic:
+        style_bible_data = result.pydantic.model_dump()
+    else:
+        style_bible_data = json.loads(str(result))
+
+    with open(style_bible_path, "w", encoding="utf-8") as file:
+        file.write(json.dumps(style_bible_data, indent=2))
+
+    print(f"Style Bible written to {style_bible_path}")
+    print("Generation complete.")
+    return result

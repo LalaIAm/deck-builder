@@ -1,6 +1,38 @@
 generate_style_bible_task:
-  description: Generate the Deck Style Bible JSON from the provided creative direction. Output strict JSON only — no markdown, no commentary.
-  expected_output: A valid JSON object conforming to the StyleBible schema with global_style_rules, suit_systems, major_arcana_rules, prompt_prefix, and avoid_terms fields.
+  description: >
+    Generate a complete Deck Style Bible JSON for a tarot deck with the following creative direction:
+
+    Art Style: {style}
+    Mood: {mood}
+    Color Palette Hints: {palette}
+    Wands Suit Association: {suit_wands}
+    Cups Suit Association: {suit_cups}
+    Swords Suit Association: {suit_swords}
+    Pentacles Suit Association: {suit_pentacles}
+
+    Produce a single JSON object with no markdown, no commentary, and no text outside the JSON.
+    The JSON must conform to this exact structure:
+    - global_style_rules: object with keys art_style, mood, lighting, composition,
+      color_temperature, rendering_technique — all derived from the creative direction above
+    - suit_systems: object with four suit keys (wands, cups, swords, pentacles), each containing
+      palette, lighting, motif, and energy — use the suit association overrides if provided,
+      otherwise infer from the art style and mood
+    - major_arcana_rules: object with figure_style, symbolism_approach, background_complexity,
+      and archetypal_realism (always set to true)
+    - prompt_prefix: a concise string that will be prepended to every image generation prompt
+      in the deck, capturing the core visual style
+    - avoid_terms: array of strings — MUST unconditionally include all of the following:
+      "text", "words", "letters", "watermark", "logo", "extra limbs", "extra fingers",
+      "deformed hands", "blurry", "low quality" — you may append additional terms appropriate
+      to the style/mood but must never omit these ten
+
+  expected_output: >
+    A single valid JSON object conforming to the StyleBible schema. No markdown fences,
+    no explanatory text, no keys outside the schema. The object must contain:
+    global_style_rules (6 keys), suit_systems (4 suits × 4 keys each), major_arcana_rules
+    (4 keys with archetypal_realism: true), prompt_prefix (non-empty string), and avoid_terms
+    (array containing at minimum the 10 mandatory guardrail terms).
+
   agent: style_bible_agent
 
 generate_concept_task:
@@ -9,7 +41,7 @@ generate_concept_task:
   agent: concept_agent
 
 build_prompt_task:
-  description: Convert the card concept JSON into a single production-ready image generation prompt string. Must start with global_prefix, include suit or Major Arcana prefix, and end with global_avoid terms. Output the prompt string only — no JSON, no markdown.
+  description: Convert the card concept JSON into a single production-ready image generation prompt string. Must start with global_prefix, include suit or Major Arcana prefix, and end with global_avoid terms. Output the prompt string only â€” no JSON, no markdown.
   expected_output: A single continuous prompt string with no markdown formatting, no JSON, and no bullet points.
   agent: prompt_agent
 
