@@ -1,20 +1,58 @@
 """Tarot Deck Generator - CrewAI crew definition."""
 
 import argparse
+import base64
 import json  # required for run() serialization path: _extract_style_bible_data, _write_style_bible
 import os
 from pathlib import Path
 from typing import Any
 
+import openai
 import yaml
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai.tools import tool
 from dotenv import load_dotenv
 
 from tarot_deck_generator.models import CardConcept, CardSpec, StyleBible
 
 # Load .env at import time - must happen before any OpenAI client is instantiated
 load_dotenv()
+
+
+def _generate_tarot_image_impl(
+    prompt_string: str, card_id: str, attempt_number: int
+) -> str:
+    """Call OpenAI image API, save PNG to output/images/{card_id}_attempt_{attempt_number}.png, return path. Used by tool and tests. Model is read from config/settings.yaml (image_model) so it stays consistent with the image_agent LLM setting."""
+    try:
+        settings = _load_settings()
+        model = settings["image_model"]
+        client = openai.OpenAI()
+        response = client.images.generate(
+            model=model,
+            prompt=prompt_string,
+            size="1024x1536",
+            n=1,
+        )
+        image_data = base64.b64decode(response.data[0].b64_json)
+        output_path = f"output/images/{card_id}_attempt_{attempt_number}.png"
+        Path("output/images").mkdir(parents=True, exist_ok=True)
+        with open(output_path, "wb") as f:
+            f.write(image_data)
+        return output_path
+    except Exception as e:
+        raise RuntimeError(
+            f"Image generation failed for card '{card_id}' attempt {attempt_number}: {e}"
+        ) from e
+
+
+@tool("Generate tarot card image")
+def generate_tarot_image_tool(
+    prompt_string: str, card_id: str, attempt_number: int
+) -> str:
+    """Call the OpenAI image API with the exact prompt_string, save the PNG to output/images/{card_id}_attempt_{attempt_number}.png, and return that file path. Do not modify the prompt. Use card_id and attempt_number only for the filename."""
+    return _generate_tarot_image_impl(prompt_string, card_id, attempt_number)
+
 
 _SETTINGS_ENV = "TAROT_CONFIG_PATH"
 _CARDS_ENV = "TAROT_CARDS_PATH"
@@ -139,7 +177,12 @@ class TarotDeckGeneratorCrew:
 
     @agent
     def image_agent(self) -> Agent:
-        return Agent(config=self.agents_config["image_agent"], verbose=True)
+        return Agent(
+            config=self.agents_config["image_agent"],
+            llm=self.settings["model"],
+            tools=[generate_tarot_image_tool],
+            verbose=True,
+        )
 
     @agent
     def evaluator_agent(self) -> Agent:
@@ -178,7 +221,10 @@ class TarotDeckGeneratorCrew:
 
     @task
     def generate_image_task(self) -> Task:
-        return Task(config=self.tasks_config["generate_image_task"])
+        return Task(
+            config=self.tasks_config["generate_image_task"],
+            context=[self.build_prompt_task],
+        )
 
     @task
     def evaluate_image_task(self) -> Task:
