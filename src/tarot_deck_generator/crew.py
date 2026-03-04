@@ -23,11 +23,13 @@ load_dotenv()
 def _generate_tarot_image_impl(
     prompt_string: str, card_id: str, attempt_number: int
 ) -> str:
-    """Call OpenAI image API, save PNG to output/images/{card_id}_attempt_{attempt_number}.png, return path. Used by tool and tests."""
+    """Call OpenAI image API, save PNG to output/images/{card_id}_attempt_{attempt_number}.png, return path. Used by tool and tests. Model is read from config/settings.yaml (image_model) so it stays consistent with the image_agent LLM setting."""
     try:
+        settings = _load_settings()
+        model = settings["image_model"]
         client = openai.OpenAI()
         response = client.images.generate(
-            model="gpt-image-1",
+            model=model,
             prompt=prompt_string,
             size="1024x1536",
             n=1,

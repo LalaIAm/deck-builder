@@ -28,7 +28,10 @@ class TestGenerateTarotImageTool:
         mock_client = MagicMock()
         mock_client.images.generate = mock_generate
 
-        with patch("tarot_deck_generator.crew.openai.OpenAI", return_value=mock_client):
+        with (
+            patch("tarot_deck_generator.crew._load_settings", return_value={"image_model": "gpt-image-1"}),
+            patch("tarot_deck_generator.crew.openai.OpenAI", return_value=mock_client),
+        ):
             result = _generate_tarot_image_impl(
                 prompt_string="test prompt",
                 card_id="seven_of_wands",
@@ -53,7 +56,10 @@ class TestGenerateTarotImageTool:
         assert not (tmp_path / "output" / "images").exists()
         mock_response = MagicMock()
         mock_response.data = [MagicMock(b64_json=_MINIMAL_PNG_B64)]
-        with patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai:
+        with (
+            patch("tarot_deck_generator.crew._load_settings", return_value={"image_model": "gpt-image-1"}),
+            patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai,
+        ):
             mock_openai.return_value.images.generate.return_value = mock_response
             _generate_tarot_image_impl(
                 prompt_string="x", card_id="test_card", attempt_number=1
@@ -66,7 +72,10 @@ class TestGenerateTarotImageTool:
     ):
         """When API raises, RuntimeError contains both card_id and attempt_number."""
         monkeypatch.chdir(tmp_path)
-        with patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai:
+        with (
+            patch("tarot_deck_generator.crew._load_settings", return_value={"image_model": "gpt-image-1"}),
+            patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai,
+        ):
             mock_openai.return_value.images.generate.side_effect = Exception(
                 "API quota exceeded"
             )
@@ -80,6 +89,27 @@ class TestGenerateTarotImageTool:
         assert "test_card" in msg
         assert "2" in msg
         assert "API quota exceeded" in msg
+
+    def test_uses_image_model_from_settings(self, tmp_path, monkeypatch):
+        """API is called with model from _load_settings()['image_model'], not hardcoded."""
+        monkeypatch.chdir(tmp_path)
+        mock_response = MagicMock()
+        mock_response.data = [MagicMock(b64_json=_MINIMAL_PNG_B64)]
+        with (
+            patch("tarot_deck_generator.crew._load_settings", return_value={"image_model": "gpt-image-2"}),
+            patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai,
+        ):
+            mock_openai.return_value.images.generate.return_value = mock_response
+            _generate_tarot_image_impl(
+                prompt_string="p", card_id="c", attempt_number=1
+            )
+        mock_openai.return_value.images.generate.assert_called_once_with(
+            model="gpt-image-2",
+            prompt="p",
+            size="1024x1536",
+            n=1,
+            response_format="b64_json",
+        )
 
 
 def _minimal_style_bible_dict():
