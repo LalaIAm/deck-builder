@@ -80,12 +80,15 @@ build_prompt_task:
   agent: prompt_agent
 
 generate_image_task:
-  description:
-    Generate exactly one tarot card image using the provided prompt string. Use
-    the configured image model and 1024x1536 PNG dimensions. Return the image
-    reference only.
-  expected_output:
-    A single image reference (URL or file path) with no additional commentary.
+  description: >
+    Using prompt_string {prompt_string}, card_id {card_id}, and attempt_number
+    {attempt_number}, call the image generation API with the exact prompt string
+    unmodified. Save the resulting PNG to disk and return only the saved file
+    path — no evaluation, no retry logic, no extra text.
+  expected_output: >
+    A single file path string pointing to the saved PNG (e.g.
+    output/images/{card_id}_attempt_{attempt_number}.png). No JSON, no markdown,
+    no extra text.
   agent: image_agent
 
 evaluate_image_task:
