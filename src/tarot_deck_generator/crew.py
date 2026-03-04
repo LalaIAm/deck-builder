@@ -14,7 +14,7 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.tools import tool
 from dotenv import load_dotenv
 
-from tarot_deck_generator.models import CardConcept, CardSpec, StyleBible
+from tarot_deck_generator.models import CardConcept, CardSpec, EvaluationVerdict, StyleBible
 
 # Load .env at import time - must happen before any OpenAI client is instantiated
 load_dotenv()
@@ -27,6 +27,9 @@ def _generate_tarot_image_impl(
     try:
         settings = _load_settings()
         model = settings["image_model"]
+        output_base = (settings.get("output_path") or "output/").strip("/") or "output"
+        images_dir = f"{output_base}/images"
+        output_path_str = f"{images_dir}/{card_id}_attempt_{attempt_number}.png"
         client = openai.OpenAI()
         response = client.images.generate(
             model=model,
@@ -114,6 +117,122 @@ def _load_cards() -> list[CardSpec]:
     return [CardSpec.model_validate(card) for card in raw]
 
 
+# REQ-5 §6: Multimodal evaluation prompt template. {style_bible_json} and {card_concept_json} are substituted.
+EVALUATION_PROMPT_TEMPLATE = """You are an expert tarot card art evaluator. Evaluate the provided image against the style bible and card concept below.
+
+STYLE BIBLE:
+{style_bible_json}
+
+CARD CONCEPT:
+{card_concept_json}
+
+Evaluate the image on four dimensions (score each 0–10):
+1. suit_compliance: Does the image match the suit palette, lighting, motif, and energy from the style bible? For Major Arcana, does it match major_arcana_rules?
+2. global_style: Does the image match the global_style_rules (art_style, mood, lighting, composition, rendering_technique)?
+3. meaning_alignment: Does the image reflect the symbolic_elements and composition_notes from the card concept?
+4. technical_quality: Is the image sharp, well-composed, and free of rendering defects?
+
+Also detect the following artifacts (any detected = automatic fail):
+- Watermarks, logos, or text overlays
+- Extra limbs, extra fingers, or deformed hands
+- Blurry or low-quality rendering
+
+Return ONLY a JSON object with no prose, no markdown fences:
+{{"card_id": "...", "attempt_number": N, "passed": true/false, "subscores": {{"suit_compliance": X, "global_style": X, "meaning_alignment": X, "technical_quality": X}}, "prompt_patch": "..."}}
+
+Rules:
+- passed=false if any artifact is detected OR if mean(subscores) < 7.0
+- prompt_patch must be empty string if passed=true
+- prompt_patch must target the single lowest-scoring dimension or the specific detected artifact if passed=false
+- Do not include any field other than the five listed above
+"""
+
+
+def _evaluate_tarot_image_impl(
+    image_path: str,
+    card_id: str,
+    attempt_number: int,
+    card_concept_json: str,
+    style_bible_json: str,
+) -> EvaluationVerdict:
+    """Load PNG at image_path, call gpt-4o vision with style_bible + card_concept, parse JSON to EvaluationVerdict, apply Python pass/fail override (REQ-5 §5–8). Raises RuntimeError with card_id and attempt_number on any failure."""
+    try:
+        with open(image_path, "rb") as f:
+            image_b64 = base64.b64encode(f.read()).decode("utf-8")
+    except Exception as e:
+        raise RuntimeError(
+            f"Evaluation failed for card '{card_id}' attempt {attempt_number}: {e}"
+        ) from e
+
+    evaluation_prompt = EVALUATION_PROMPT_TEMPLATE.format(
+        style_bible_json=style_bible_json,
+        card_concept_json=card_concept_json,
+    )
+    content = [
+        {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{image_b64}"},
+        },
+        {"type": "text", "text": evaluation_prompt},
+    ]
+    settings = _load_settings()
+    model = settings["model"]
+    try:
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": content}],
+        )
+        text = response.choices[0].message.content or "{}"
+    except Exception as e:
+        raise RuntimeError(
+            f"Evaluation failed for card '{card_id}' attempt {attempt_number}: {e}"
+        ) from e
+
+    try:
+        cleaned = text.strip()
+        if cleaned.startswith("```"):
+            first = cleaned.find("\n") + 1
+            last = cleaned.rfind("```")
+            cleaned = cleaned[first:last].strip() if last > first else cleaned
+        raw = json.loads(cleaned)
+        verdict = EvaluationVerdict.model_validate(raw)
+    except Exception as e:
+        raise RuntimeError(
+            f"Evaluation failed for card '{card_id}' attempt {attempt_number}: {e}"
+        ) from e
+
+    # REQ-5: card_id and attempt_number come from task input, not LLM output.
+    verdict = verdict.model_copy(update={"card_id": card_id, "attempt_number": attempt_number})
+
+    # REQ-5 §8: Python pass/fail override (deterministic; LLM may hallucinate passed=true).
+    subscores = verdict.subscores
+    overall_score = sum(subscores.values()) / len(subscores) if subscores else 0.0
+    llm_flagged_artifact = (verdict.pass_ is False) and (overall_score >= 7.0)
+    verdicts_passed = (overall_score >= 7.0) and (not llm_flagged_artifact)
+    verdict = verdict.model_copy(update={"pass_": verdicts_passed})
+    return verdict
+
+
+@tool("Evaluate tarot card image")
+def evaluate_tarot_image_tool(
+    image_path: str,
+    card_id: str,
+    attempt_number: int,
+    card_concept_json: str,
+    style_bible_json: str,
+) -> dict[str, Any]:
+    """Evaluate the tarot card image at image_path against the card concept and style bible. Use the exact JSON strings provided for card_concept_json and style_bible_json. Returns the EvaluationVerdict as a dict (card_id, attempt_number, passed, subscores, prompt_patch)."""
+    verdict = _evaluate_tarot_image_impl(
+        image_path=image_path,
+        card_id=card_id,
+        attempt_number=attempt_number,
+        card_concept_json=card_concept_json,
+        style_bible_json=style_bible_json,
+    )
+    return verdict.model_dump(by_alias=True)
+
+
 @CrewBase
 class TarotDeckGeneratorCrew:
     """Crew lifecycle for tarot deck generation.
@@ -185,7 +304,14 @@ class TarotDeckGeneratorCrew:
 
     @agent
     def evaluator_agent(self) -> Agent:
-        return Agent(config=self.agents_config["evaluator_agent"], verbose=True)
+        """Evaluator uses gpt-4o (settings['model']) for vision; actual vision call is in evaluate_tarot_image_tool (REQ-5)."""
+        return Agent(
+            config=self.agents_config["evaluator_agent"],
+            llm=self.settings["model"],
+            output_json=EvaluationVerdict,
+            tools=[evaluate_tarot_image_tool],
+            verbose=True,
+        )
 
     @agent
     def repair_agent(self) -> Agent:
@@ -227,7 +353,12 @@ class TarotDeckGeneratorCrew:
 
     @task
     def evaluate_image_task(self) -> Task:
-        return Task(config=self.tasks_config["evaluate_image_task"])
+        """Context from generate_image_task (image path); tool does vision call + pass/fail override (REQ-5)."""
+        return Task(
+            config=self.tasks_config["evaluate_image_task"],
+            context=[self.generate_image_task],
+            output_json=EvaluationVerdict,
+        )
 
     @task
     def repair_prompt_task(self) -> Task:
