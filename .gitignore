@@ -8,3 +8,5 @@ __pycache__/
 .braingrid/temp/
 # Local/dev output (do not commit)
 tmp_out/
+# Coverage
+.coverage
