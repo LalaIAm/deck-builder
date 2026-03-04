@@ -109,6 +109,25 @@ class TestGenerateTarotImageTool:
             n=1,
         )
 
+    def test_uses_output_path_from_settings(self, tmp_path, monkeypatch):
+        """Images are written under settings['output_path']/images/, not hardcoded output/images/."""
+        monkeypatch.chdir(tmp_path)
+        mock_response = MagicMock()
+        mock_response.data = [MagicMock(b64_json=_MINIMAL_PNG_B64)]
+        with (
+            patch(
+                "tarot_deck_generator.crew._load_settings",
+                return_value={"image_model": "gpt-image-1", "output_path": "custom_out/"},
+            ),
+            patch("tarot_deck_generator.crew.openai.OpenAI") as mock_openai,
+        ):
+            mock_openai.return_value.images.generate.return_value = mock_response
+            result = _generate_tarot_image_impl(
+                prompt_string="p", card_id="x", attempt_number=1
+            )
+        assert result == "custom_out/images/x_attempt_1.png"
+        assert (tmp_path / "custom_out" / "images" / "x_attempt_1.png").exists()
+
 
 def _minimal_style_bible_dict():
     """Minimal REQ-2–shaped dict for style_bible (matches test_crew_run)."""

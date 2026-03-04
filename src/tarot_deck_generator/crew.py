@@ -35,11 +35,10 @@ def _generate_tarot_image_impl(
             n=1,
         )
         image_data = base64.b64decode(response.data[0].b64_json)
-        output_path = f"output/images/{card_id}_attempt_{attempt_number}.png"
-        Path("output/images").mkdir(parents=True, exist_ok=True)
-        with open(output_path, "wb") as f:
+        Path(images_dir).mkdir(parents=True, exist_ok=True)
+        with open(output_path_str, "wb") as f:
             f.write(image_data)
-        return output_path
+        return output_path_str
     except Exception as e:
         raise RuntimeError(
             f"Image generation failed for card '{card_id}' attempt {attempt_number}: {e}"
