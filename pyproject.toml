@@ -10,7 +10,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=7.0.0"]
+test = [
+  "pytest>=7.0.0",
+  "pytest-cov>=4.0.0",
+  "coveralls>=4.0.0",
+]
 
 [project.scripts]
 tarot_deck_generator = "tarot_deck_generator.crew:run"

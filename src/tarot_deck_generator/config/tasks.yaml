@@ -13,9 +13,8 @@ generate_style_bible_task:
     outside the JSON. The JSON must conform to this exact structure: -
     global_style_rules: object with keys art_style, mood, lighting, composition,
       color_temperature, rendering_technique — all derived from the creative
-    direction above
-    - suit_systems: object with four suit keys (wands, cups, swords, pentacles),
-    each containing
+    direction above - suit_systems: object with four suit keys (wands, cups,
+    swords, pentacles), each containing
       palette, lighting, motif, and energy — use the suit association overrides
     if provided,
       otherwise infer from the art style and mood
@@ -44,24 +43,40 @@ generate_style_bible_task:
   agent: style_bible_agent
 
 generate_concept_task:
-  description:
-    Generate a structured visual concept for the specified tarot card,
-    respecting the Style Bible and limiting symbolic_elements to a maximum of
-    three. Output strict JSON only.
-  expected_output:
-    A valid JSON object conforming to the CardConcept schema with card_id,
-    symbolic_elements (max 3), composition_notes, and prompt_string fields.
+  description: >
+    Generate a structured visual concept for this tarot card. Card identity:
+    card_id={card_id}, card_name={card_name}, arcana={arcana}, suit={suit},
+    meaning_keywords={meaning_keywords}.
+
+    Use the Style Bible from context. For Minor Arcana (suit is not empty):
+    apply suit_systems[suit].motif and suit_systems[suit].energy to
+    symbolic_elements; keep composition_notes standard. For Major Arcana (suit
+    is empty): reflect archetypal symbolism of the card; composition_notes must
+    reference major_arcana_rules.figure_style.
+
+    Do not add fantasy effects unless the Style Bible explicitly allows them.
+    Keep background complexity minimal. Limit symbolic_elements to at most three
+    items. Output strict JSON only — no markdown, no commentary.
+  expected_output: >
+    A single valid JSON object conforming to the CardConcept schema: card_id,
+    symbolic_elements (max 3), composition_notes, prompt_string (may be empty;
+    filled later). No markdown fences, no explanatory text.
   agent: concept_agent
 
 build_prompt_task:
-  description:
-    Convert the card concept JSON into a single production-ready image
-    generation prompt string. Must start with global_prefix, include suit or
-    Major Arcana prefix, and end with global_avoid terms. Output the prompt
-    string only — no JSON, no markdown.
-  expected_output:
-    A single continuous prompt string with no markdown formatting, no JSON, and
-    no bullet points.
+  description: >
+    Assemble the final image generation prompt in this strict order, joining
+    every segment with ", " (comma-space). (1) StyleBible.prompt_prefix. (2) For
+    Minor Arcana: suit_systems[suit].palette and suit_systems[suit].lighting;
+    for Major Arcana: major_arcana_rules.figure_style. (3) Visual scene: ",
+    ".join(symbolic_elements), then ", ", then composition_notes. (4) "avoid: "
+    plus ", ".join(StyleBible.avoid_terms).
+
+    Output only the single continuous prompt string. No JSON, no markdown, no
+    newlines, no bullet points, no commentary.
+  expected_output: >
+    A single continuous prompt string with no JSON structure, no markdown
+    formatting, and no newline characters. All segments joined by ", ".
   agent: prompt_agent
 
 generate_image_task:

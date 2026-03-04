@@ -11,7 +11,7 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from dotenv import load_dotenv
 
-from tarot_deck_generator.models import CardSpec, StyleBible
+from tarot_deck_generator.models import CardConcept, CardSpec, StyleBible
 
 # Load .env at import time - must happen before any OpenAI client is instantiated
 load_dotenv()
@@ -93,6 +93,24 @@ class TarotDeckGeneratorCrew:
     def __init__(self):
         self.settings = _load_settings()
         self.cards = _load_cards()
+        project_root = _discover_project_root(Path(__file__).resolve().parent)
+        output_dir = project_root / self.settings["output_path"].strip("/")
+        self._style_bible_path = output_dir / STYLE_BIBLE_FILENAME
+        self._style_bible: StyleBible | None = None
+
+    @property
+    def style_bible(self) -> StyleBible:
+        """Load and cache StyleBible from output/style_bible.json. Raises if missing (REQ-3)."""
+        if self._style_bible is None:
+            if not self._style_bible_path.exists():
+                raise FileNotFoundError(
+                    "Style Bible not found at output/style_bible.json — run the Style Bible "
+                    "generation step first (REQ-2)"
+                )
+            self._style_bible = StyleBible.model_validate(
+                json.loads(self._style_bible_path.read_text(encoding="utf-8"))
+            )
+        return self._style_bible
 
     @agent
     def style_bible_agent(self) -> Agent:
@@ -105,11 +123,19 @@ class TarotDeckGeneratorCrew:
 
     @agent
     def concept_agent(self) -> Agent:
-        return Agent(config=self.agents_config["concept_agent"], verbose=True)
+        return Agent(
+            config=self.agents_config["concept_agent"],
+            llm=self.settings["model"],
+            verbose=True,
+        )
 
     @agent
     def prompt_agent(self) -> Agent:
-        return Agent(config=self.agents_config["prompt_agent"], verbose=True)
+        return Agent(
+            config=self.agents_config["prompt_agent"],
+            llm=self.settings["model"],
+            verbose=True,
+        )
 
     @agent
     def image_agent(self) -> Agent:
@@ -137,11 +163,18 @@ class TarotDeckGeneratorCrew:
 
     @task
     def generate_concept_task(self) -> Task:
-        return Task(config=self.tasks_config["generate_concept_task"])
+        return Task(
+            config=self.tasks_config["generate_concept_task"],
+            output_json=CardConcept,
+            context=[self.generate_style_bible_task],
+        )
 
     @task
     def build_prompt_task(self) -> Task:
-        return Task(config=self.tasks_config["build_prompt_task"])
+        return Task(
+            config=self.tasks_config["build_prompt_task"],
+            context=[self.generate_concept_task],
+        )
 
     @task
     def generate_image_task(self) -> Task:
