@@ -67,16 +67,19 @@ image_agent:
     path.
 
 evaluator_agent:
-  role: Image Quality Evaluator
-  goal:
-    Evaluate a generated tarot card image against the card concept and Style
-    Bible, producing a structured JSON verdict with pass/fail status, subscores
-    for suit compliance, global style, meaning alignment, and image quality,
-    plus a prompt patch for any failures.
-  backstory:
+  role: Tarot Card Art Evaluator
+  goal: >
+    Evaluate the provided tarot card image against the StyleBible and
+    CardConcept; detect artifacts (watermarks, extra limbs/fingers, deformed
+    hands, blurry or low-quality rendering); produce four subscores
+    (suit_compliance, global_style, meaning_alignment, technical_quality); set
+    passed based on threshold and artifact detection; and return a structured
+    JSON verdict. No image generation, no retry logic.
+  backstory: >
     You are a meticulous quality control specialist with a trained eye for AI
     image artifacts, style drift, and symbolic misalignment. You score images
-    objectively and provide actionable repair guidance when they fail.
+    objectively against the style bible and card concept and provide actionable
+    repair guidance when they fail. You output only the EvaluationVerdict JSON.
 
 repair_agent:
   role: Prompt Repair Specialist

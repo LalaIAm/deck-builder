@@ -94,20 +94,36 @@ class CardConcept(BaseModel):
         return v
 
 
+# REQ-5: Exactly four subscore keys; no extra fields (artifact info via passed + prompt_patch).
+REQUIRED_SUBSCORE_KEYS = frozenset(
+    {"suit_compliance", "global_style", "meaning_alignment", "technical_quality"}
+)
+
+
 class EvaluationVerdict(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     card_id: str
+    attempt_number: int
     pass_: bool = Field(
         validation_alias=AliasChoices("pass", "passed"),
-        serialization_alias="pass",
+        serialization_alias="passed",
     )
     subscores: dict[str, float]
-    rule_checks: dict[str, bool]
-    reasons: list[str]
     prompt_patch: str
-    failure_mode: str
-    attempt_number: int
+
+    @field_validator("subscores")
+    @classmethod
+    def subscores_four_keys(cls, v: dict[str, float]) -> dict[str, float]:
+        keys = set(v)
+        if keys != REQUIRED_SUBSCORE_KEYS:
+            raise ValueError(
+                f"subscores must have exactly {REQUIRED_SUBSCORE_KEYS}, got {keys}"
+            )
+        for score in v.values():
+            if not isinstance(score, (int, float)) or score < 0 or score > 10:
+                raise ValueError(f"each subscore must be 0–10, got {score}")
+        return v
 
 
 class CardResult(BaseModel):
