@@ -33,7 +33,6 @@ def _generate_tarot_image_impl(
             prompt=prompt_string,
             size="1024x1536",
             n=1,
-            response_format="b64_json",
         )
         image_data = base64.b64decode(response.data[0].b64_json)
         output_path = f"output/images/{card_id}_attempt_{attempt_number}.png"
@@ -180,7 +179,7 @@ class TarotDeckGeneratorCrew:
     def image_agent(self) -> Agent:
         return Agent(
             config=self.agents_config["image_agent"],
-            llm=self.settings["image_model"],
+            llm=self.settings["model"],
             tools=[generate_tarot_image_tool],
             verbose=True,
         )

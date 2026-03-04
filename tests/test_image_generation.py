@@ -47,7 +47,6 @@ class TestGenerateTarotImageTool:
             prompt="test prompt",
             size="1024x1536",
             n=1,
-            response_format="b64_json",
         )
 
     def test_creates_output_images_directory_if_missing(self, tmp_path, monkeypatch):
@@ -108,7 +107,6 @@ class TestGenerateTarotImageTool:
             prompt="p",
             size="1024x1536",
             n=1,
-            response_format="b64_json",
         )
 
 
@@ -144,7 +142,7 @@ class TestImageAgentAndTaskWiring:
     """REQ-4: image_agent and generate_image_task config and context."""
 
     def test_crew_instantiates_and_image_agent_has_llm(self, tmp_path):
-        """Crew loads; image_agent exists and uses image_model from settings."""
+        """Crew loads; image_agent exists and has an LLM for reasoning (text model, not image model)."""
         (tmp_path / "config").mkdir()
         (tmp_path / "data").mkdir()
         (tmp_path / "output").mkdir()
